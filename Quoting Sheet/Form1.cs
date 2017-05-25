@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace Quoting_Sheet
 {
@@ -17,7 +20,7 @@ namespace Quoting_Sheet
             InitializeComponent();
         }
 
-        private void Calculate_Click(object sender, EventArgs e)
+        private void Calculate(object sender, EventArgs e)
         {
             decimal time;
             decimal atCost;
@@ -65,7 +68,75 @@ namespace Quoting_Sheet
             AtCostUnit.Text = atCostUnit.ToString();
             ClientCostUnit.Text = clientCostUnit.ToString();
 
+            AtCost.Text = string.Format("{0:0.00}", AtCost.Text);
+            ClientCost.Text = string.Format("{0:0.00}", ClientCost.Text);
+            AtCostUnit.Text = string.Format("{0:0.00}", AtCostUnit.Text);
+            ClientCostUnit.Text = string.Format("{0:0.00}", ClientCostUnit.Text);
 
         }
+
+        private void Save_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Quote Files (*.quote)|*quote";
+            dialog.ShowDialog();
+
+            if(dialog.FileName != "")
+            {
+                SaveData Data = new SaveData();
+                Data.DesignTime = DesignTime.Value;
+                Data.MachineTime = MachineTime.Value;
+                Data.ManualLabourTime = ManualLabourTime.Value;
+                Data.MaterialCost = MaterialCost.Value;
+                Data.Quantity = Quantity.Value;
+                Data.RushJob = RushJob.Checked;
+                Data.DifficultClient = DifficultClient.Checked;
+                Data.PreferredClient = PreferredClient.Checked;
+
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write, FileShare.None);
+                formatter.Serialize(stream, Data);
+                stream.Close();
+            }
+
+        }
+
+        private void Load_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Quote Files (*.quote)|*quote";
+            dialog.ShowDialog();
+
+            if(dialog.FileName != "")
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(dialog.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                SaveData Data = (SaveData)formatter.Deserialize(stream);
+                stream.Close();
+
+                DesignTime.Value = Data.DesignTime;
+                MachineTime.Value = Data.MachineTime;
+                ManualLabourTime.Value = Data.ManualLabourTime;
+                MaterialCost.Value = Data.MaterialCost;
+                Quantity.Value = Data.Quantity;
+                RushJob.Checked = Data.RushJob;
+                DifficultClient.Checked = Data.DifficultClient;
+                PreferredClient.Checked = Data.PreferredClient;
+            }
+            
+        }
+    }
+
+    [Serializable]
+    public class SaveData
+    {
+        public decimal DesignTime = 0;
+        public decimal MachineTime = 0;
+        public decimal ManualLabourTime = 0;
+        public decimal MaterialCost = 0;
+        public decimal Quantity = 1;
+        public bool RushJob = false;
+        public bool DifficultClient = false;
+        public bool PreferredClient = false;
     }
 }
