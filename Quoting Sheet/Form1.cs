@@ -78,7 +78,7 @@ namespace Quoting_Sheet
         private void Save_Click(object sender, EventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Quote Files (*.quote)|*quote";
+            dialog.Filter = "Quote Files (*.quote)|*.quote";
             dialog.ShowDialog();
 
             if(dialog.FileName != "")
@@ -104,7 +104,7 @@ namespace Quoting_Sheet
         private void Load_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Quote Files (*.quote)|*quote";
+            dialog.Filter = "Quote Files (*.quote)|*.quote";
             dialog.ShowDialog();
 
             if(dialog.FileName != "")
